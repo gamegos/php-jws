@@ -1,0 +1,21 @@
+{
+    "name": "gamegos/jws",
+    "description": "Json Web Signature (JWS) PHP implementation",
+    "keywords": ["jws", "jwt", "json web signature", "json web token", "jwa", "digital signature"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mustafa Altun",
+            "email": "gmail@mustafaaltun.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Gamegos\\JWS\\": ["src"]
+        }
+    }
+}
