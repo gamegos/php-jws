@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mustafa
- * Date: 6/16/14
- * Time: 10:34 AM
- */
 
 namespace Gamegos\JWS\Algorithm;
 
@@ -24,8 +18,10 @@ class RSA_SSA_PKCSv15 implements AlgorithmInterface
      */
     public function sign($key, $data)
     {
-        openssl_sign($data, $signature, $key, $this->sigAlgo);
-
+        $result = openssl_sign($data, $signature, $key, $this->sigAlgo);
+        if (!$result) {
+            throw new \RuntimeException(openssl_error_string());
+        }
         return $signature;
     }
 
