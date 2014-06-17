@@ -12,7 +12,7 @@ The recommended way to install gamegos/jws is through [Composer](http://getcompo
 ```JSON
 {
     "require": {
-        "gamegos/jws": "0.*"
+        "gamegos/jws": "~0.2"
     }
 }
 ```
