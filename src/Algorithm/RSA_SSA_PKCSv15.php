@@ -22,6 +22,7 @@ class RSA_SSA_PKCSv15 implements AlgorithmInterface
         if (!$result) {
             throw new \RuntimeException(openssl_error_string());
         }
+
         return $signature;
     }
 
