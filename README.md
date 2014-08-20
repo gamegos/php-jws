@@ -1,7 +1,11 @@
 JSON Web Signature (JWS) PHP Library
 ====================================
 
-A simple and extensible PHP implementation of JWS based on [the latest (27<sup>th</sup>) JWS draft](http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-27).
+A simple and extensible PHP implementation of JWS based on JWS draft](http://tools.ietf.org/html/draft-ietf-jose-json-web-signature).
+
+## Note
+
+**[gamegos/jwt](https://github.com/Gamegos/php-jwt) library is more suitable for a JSON WEB TOKEN(JWT) solution** 
 
 
 ## Installation
