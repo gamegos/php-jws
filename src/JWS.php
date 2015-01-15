@@ -86,29 +86,35 @@ class JWS
         $headerComponent  = Base64Url::encode(Json::encode($headers));
         $payloadComponent = Base64Url::encode(Json::encode($payload));
 
-        $dataToSign = $headerComponent . '.' . $payloadComponent;
+        $dataToSign = $headerComponent.'.'.$payloadComponent;
         $signature = Base64Url::encode($algorithm->sign($key, $dataToSign));
 
-        return $dataToSign . '.' . $signature;
+        return $dataToSign.'.'.$signature;
+    }
+
+    private function extractSignature($jwsString)
+    {
+        $p = strrpos($jwsString, '.');
+
+        return [substr($jwsString, 0, $p), substr($jwsString, $p + 1) ?: ''];
     }
 
     /**
+     * Only decodes jws string and returns headers and payload. To verify signature use verify method.
+     *
+     * @throws MalformedSignatureException
      * @param $jwsString
-     * @param $key
      * @return array(
-     *                'headers' => array(),
-     *                'payload' => payload data
-     *                )
+     *                                     'headers' => array(),
+     *                                     'payload' => payload data
+     *                                     )
      */
-    public function decode($jwsString, $key)
+    public function decode($jwsString)
     {
         $components = explode('.', $jwsString);
         if (count($components) !== 3) {
             throw new MalformedSignatureException('JWS string must contain 3 dot separated component.');
         }
-
-        $dataToSign = $components[0] . '.' . $components[1];
-        $signature  = Base64Url::decode($components[2]);
 
         try {
             $headers = Json::decode(Base64Url::decode($components[0]));
@@ -117,18 +123,42 @@ class JWS
             throw new MalformedSignatureException("Cannot decode signature headers and/or payload");
         }
 
+        return [
+            'headers' => $headers,
+            'payload' => $payload
+        ];
+    }
+
+    /**
+     * @param $jwsString
+     * @param $key
+     *
+     * @throws UnspecifiedAlgorithmException
+     * @throws MalformedSignatureException
+     * @throws UnspecifiedAlgorithmException
+     * @throws InvalidSignatureException
+     *
+     * @return array(
+     *                'headers' => array(),
+     *                'payload' => mixed payload data
+     *                )
+     */
+    public function verify($jwsString, $key)
+    {
+        $jws = $this->decode($jwsString);
+        $headers = $jws['headers'];
+
+        list($dataToSign, $signature) = $this->extractSignature($jwsString);
+
         if (empty($headers['alg'])) {
             throw new UnspecifiedAlgorithmException("No algorithm information found in headers. alg header parameter is required.");
         }
 
         $algorithm = $this->_getAlgorithm($headers['alg']);
-        if (!$algorithm->verify($key, $dataToSign, $signature)) {
+        if (!$algorithm->verify($key, $dataToSign, Base64Url::decode($signature))) {
             throw new InvalidSignatureException("Invalid signature");
         }
 
-        return array(
-            'headers' => $headers,
-            'payload' => $payload
-        );
+        return $jws;
     }
 }

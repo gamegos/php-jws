@@ -16,7 +16,7 @@ The recommended way to install gamegos/jws is through [Composer](http://getcompo
 ```JSON
 {
     "require": {
-        "gamegos/jws": "~0.2"
+        "gamegos/jws": "~1.0"
     }
 }
 ```
@@ -47,7 +47,7 @@ echo $jws->encode($headers, $payload, $key);
 ```
 
 
-Decoding
+Decoding & Verifying
 
 ```php
 
@@ -58,10 +58,10 @@ $jwsString = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzb21lb25lQGV4YW1wb
 
 $jws = new \Gamegos\JWS\JWS();
 
-$jws->decode($jwsString, $key);
+$jws->verify($jwsString, $key);
 ```
 
-If everything is ok you will get an array with 'headers' and 'payload'. 
+If everything is ok you will get an array with 'headers' and 'payload'.
 
 ```php
 /*
@@ -83,12 +83,18 @@ Array
 */
 ```
 
-You will get one of [these exceptions](#exceptions) if something bad happens.  
+You will get one of [these exceptions](#exceptions) if something bad happens. 
+
+If you only want to parse jws string **without** signature verification you can use ```decode``` method.
+
+```php
+
+$jws->decode($jwsString);
+```
 
 
 
-
-## Algorithms
+## Supported Algorithms
 
 Currently these algorithms are supported.
 

@@ -19,15 +19,15 @@ class JWSTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('RS512', $supported, 'RS512 algorithm supported');
     }
 
-    public function testEncodeDecodeHMAC()
+    public function testEncodeVerifyHMAC()
     {
         $headers = array(
-            'http://example.com/custom-header' => 'custom-value'
+            'http://example.com/custom-header' => 'custom-value',
         );
 
         $payload = array(
             'a' => 'b',
-            'x' => 'y'
+            'x' => 'y',
         );
 
         $key = 'da0278b7cdbf1ee613e47c42f8928a1bdf9f0bb3';
@@ -35,44 +35,78 @@ class JWSTest extends \PHPUnit_Framework_TestCase
         $jws = new JWS();
         $algs = array('HS256', 'HS384', 'HS512');
         foreach ($algs as $alg) {
-
             $headers['alg'] = $alg;
 
             $encoded = $jws->encode($headers, $payload, $key);
-            $decoded = $jws->decode($encoded, $key);
+            $decoded = $jws->verify($encoded, $key);
 
-            //printf("%s: %s\n", $alg, $encoded);
             $this->assertEquals($headers, $decoded['headers']);
             $this->assertEquals($payload, $decoded['payload']);
         }
     }
 
-    public function testEncodeDecodeRSA()
+    public function testEncodeVerifyRSA()
     {
         $headers = array(
-            'http://example.com/custom-header' => 'custom-value'
+            'http://example.com/custom-header' => 'custom-value',
         );
 
         $payload = array(
             'a' => 'b',
-            'x' => 'y'
+            'x' => 'y',
         );
 
-        $publicKey = file_get_contents(__DIR__ . '/test_publickey.pem');
-        $privateKey = file_get_contents(__DIR__ . '/test_privatekey.pem');
+        $publicKey = file_get_contents(__DIR__.'/test_publickey.pem');
+        $privateKey = file_get_contents(__DIR__.'/test_privatekey.pem');
 
         $jws = new JWS();
         $algs = array('RS256', 'RS384', 'RS512');
         foreach ($algs as $alg) {
-
             $headers['alg'] = $alg;
 
             $encoded = $jws->encode($headers, $payload, $privateKey);
-            $decoded = $jws->decode($encoded, $publicKey);
+            $decoded = $jws->verify($encoded, $publicKey);
 
-            //printf("%s: %s\n", $alg, $encoded);
             $this->assertEquals($headers, $decoded['headers']);
             $this->assertEquals($payload, $decoded['payload']);
         }
+    }
+
+    public function testExtractSignature()
+    {
+        $method = new \ReflectionMethod('Gamegos\JWS\JWS', 'extractSignature');
+        $method->setAccessible(true);
+
+        $this->assertEquals(['aaa.bbb', 'ccc'], $method->invoke(new JWS(), 'aaa.bbb.ccc'));
+        $this->assertEquals(['nullsignature.payload', ''], $method->invoke(new JWS(), 'nullsignature.payload.'));
+    }
+
+    /**
+     * @expectedException        \Gamegos\JWS\Exception\UnsupportedAlgorithmException
+     */
+    public function testUnsupportedAlgorithm()
+    {
+        $method = new \ReflectionMethod('Gamegos\JWS\JWS', '_getAlgorithm');
+        $method->setAccessible(true);
+
+        $method->invoke(new JWS(), 'FAKE_UNSUPPORTED_ALGORITHM');
+    }
+
+    /**
+     * @expectedException        \Gamegos\JWS\Exception\UnspecifiedAlgorithmException
+     */
+    public function testUnspecifiedAlgorithm()
+    {
+        $jws = new JWS();
+        $jws->encode([], 'payload', 'key');
+    }
+
+    /**
+     * @expectedException        \Gamegos\JWS\Exception\MalformedSignatureException
+     */
+    public function testMalformedSignature()
+    {
+        $jws = new JWS();
+        $jws->decode('two-dots.required');
     }
 }
