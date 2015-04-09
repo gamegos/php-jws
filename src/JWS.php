@@ -3,7 +3,6 @@ namespace Gamegos\JWS;
 
 use Gamegos\JWS\Algorithm\AlgorithmInterface;
 use Gamegos\JWS\Algorithm\HMACAlgorithm;
-use Gamegos\JWS\Algorithm\NoneAlgorithm;
 use Gamegos\JWS\Algorithm\RSA_SSA_PKCSv15;
 use Gamegos\JWS\Exception\InvalidSignatureException;
 use Gamegos\JWS\Exception\MalformedSignatureException;
@@ -21,21 +20,27 @@ class JWS
      */
     public function __construct($algorithms = null)
     {
-        //built-in algorithms
-        $this->registerAlgorithm('none',  new NoneAlgorithm());
-
-        $this->registerAlgorithm('HS256', new HMACAlgorithm('sha256'));
-        $this->registerAlgorithm('HS384', new HMACAlgorithm('sha384'));
-        $this->registerAlgorithm('HS512', new HMACAlgorithm('sha512'));
-
-        $this->registerAlgorithm('RS256', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA256));
-        $this->registerAlgorithm('RS384', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA384));
-        $this->registerAlgorithm('RS512', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA512));
-
         if (is_array($algorithms)) {
-            foreach ($algorithms as $name => $algorithm) {
-                $this->registerAlgorithm($name, $algorithm);
-            }
+            $this->registerAlgorithms($algorithms);
+        } else {
+            //built-in algorithms
+            $this->registerAlgorithm('HS256', new HMACAlgorithm('sha256'));
+            $this->registerAlgorithm('HS384', new HMACAlgorithm('sha384'));
+            $this->registerAlgorithm('HS512', new HMACAlgorithm('sha512'));
+
+            $this->registerAlgorithm('RS256', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA256));
+            $this->registerAlgorithm('RS384', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA384));
+            $this->registerAlgorithm('RS512', new RSA_SSA_PKCSv15(OPENSSL_ALGO_SHA512));
+        }
+    }
+
+    /**
+     * @param AlgorithmInterface[] $algorithms
+     */
+    public function registerAlgorithms(array $algorithms)
+    {
+        foreach ($algorithms as $name => $algorithm) {
+            $this->registerAlgorithm($name, $algorithm);
         }
     }
 

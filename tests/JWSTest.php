@@ -8,8 +8,6 @@ class JWSTest extends \PHPUnit_Framework_TestCase
     {
         $jws = new JWS();
         $supported = $jws->supportedAlgorithms();
-        $this->assertContains('none', $supported, 'none algorithm supported');
-
         $this->assertContains('HS256', $supported, 'HS256 algorithm supported');
         $this->assertContains('HS384', $supported, 'HS384 algorithm supported');
         $this->assertContains('HS512', $supported, 'HS512 algorithm supported');
