@@ -107,4 +107,16 @@ class JWSTest extends \PHPUnit_Framework_TestCase
         $jws = new JWS();
         $jws->decode('two-dots.required');
     }
+
+    /**
+     * @expectedException        \Gamegos\JWS\Exception\UnexpectedAlgorithmException
+     */
+    public function testUnexpectedAlgorithm()
+    {
+        $jws = new JWS();
+        $key = 'xxx';
+        $str = $jws->encode(['alg' => 'HS256'], ['foo' => 'bar'], $key);
+
+        $jws->verify($str, $key, 'RS256');
+    }
 }

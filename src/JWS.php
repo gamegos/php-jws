@@ -6,6 +6,7 @@ use Gamegos\JWS\Algorithm\HMACAlgorithm;
 use Gamegos\JWS\Algorithm\RSA_SSA_PKCSv15;
 use Gamegos\JWS\Exception\InvalidSignatureException;
 use Gamegos\JWS\Exception\MalformedSignatureException;
+use Gamegos\JWS\Exception\UnexpectedAlgorithmException;
 use Gamegos\JWS\Exception\UnspecifiedAlgorithmException;
 use Gamegos\JWS\Exception\UnsupportedAlgorithmException;
 use Gamegos\JWS\Util\Base64Url;
@@ -137,18 +138,20 @@ class JWS
     /**
      * @param $jwsString
      * @param $key
+     * @param $expectedAlgorithm
      *
      * @throws UnspecifiedAlgorithmException
      * @throws MalformedSignatureException
      * @throws UnspecifiedAlgorithmException
      * @throws InvalidSignatureException
+     * @throws UnexpectedAlgorithmException
      *
      * @return array(
      *                'headers' => array(),
      *                'payload' => mixed payload data
      *                )
      */
-    public function verify($jwsString, $key)
+    public function verify($jwsString, $key, $expectedAlgorithm = null)
     {
         $jws = $this->decode($jwsString);
         $headers = $jws['headers'];
@@ -157,6 +160,11 @@ class JWS
 
         if (empty($headers['alg'])) {
             throw new UnspecifiedAlgorithmException("No algorithm information found in headers. alg header parameter is required.");
+        }
+
+        if ($expectedAlgorithm !== null && strtolower($headers['alg']) !== strtolower($expectedAlgorithm)) {
+            throw new UnexpectedAlgorithmException(sprintf("Algorithm '%s' is not expected. Expected algorithm is '%s'",
+                $headers['alg'], $expectedAlgorithm));
         }
 
         $algorithm = $this->_getAlgorithm($headers['alg']);
