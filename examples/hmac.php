@@ -15,5 +15,11 @@ $payload = array(
 $key = 'some-secret-for-hmac';
 
 $jws = new \Gamegos\JWS\JWS();
+
+// ENCODE
 $jwsString = $jws->encode($headers, $payload, $key);
-printf("%s\n", $jwsString); //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaWF0IjoiMTQwMjk5MzUzMSJ9.0lgcQRnj_Jour8MLdIc71hPjjLVcQAOtagKVD9soaqU%
+printf("encode:\n%s\n\n", $jwsString); //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaWF0IjoiMTQwMjk5MzUzMSJ9.0lgcQRnj_Jour8MLdIc71hPjjLVcQAOtagKVD9soaqU%
+
+// VERIFY
+printf("verify: \n");
+print_r($jws->verify($jwsString, $key));
