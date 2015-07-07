@@ -7,4 +7,4 @@ $key = 'some-secret-for-hmac';
 $jwsString = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaWF0IjoiMTQwMjk5MzUzMSJ9.0lgcQRnj_Jour8MLdIc71hPjjLVcQAOtagKVD9soaqU';
 
 $jws = new \Gamegos\JWS\JWS();
-print_r($jws->decode($jwsString, $key));
+print_r($jws->verify($jwsString, $key));
